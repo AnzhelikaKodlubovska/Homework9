@@ -15,15 +15,27 @@ def input_error(func):
 def saving(data, dict_user):
     if len(data) == 2 and data[0].isalpha():
         name, phone = data
-        dict_user[name] = phone
-        return f"Contact added."
+        if name not in dict_user:  
+            dict_user[name] = phone
+            return f"Contact added."
+        else:
+            return f"Contact {name} already exists."
+    else:
+        return "Invalid data provided."
+
 
 @input_error
 def change_phone_number(data, dict_user):
     if len(data) == 2:
         name, new_phone = data
-        dict_user[name] = new_phone
-        return f"Phone number updated."
+        if name in dict_user:
+            dict_user[name] = new_phone
+            return f'Phone updated.'
+        else:
+            return f"Contact {name} not found."
+    else:
+        return "Insufficient information provided."
+
 
 @input_error
 def show_phone_number(data, dict_user):
@@ -31,15 +43,18 @@ def show_phone_number(data, dict_user):
     if name in dict_user:
         return f"Phone number for {name}: {dict_user[name]}"
 
+@input_error
 def show_all(dict_user):
     if dict_user:
         return '\n'.join([f"{name}: {phone}" for name, phone in dict_user.items()])
     else:
         return "No contacts available."
 
+@input_error
 def hello():
     return "How can I help you?"
 
+@input_error
 def good_bye():
     return "Good bye!"
 
@@ -56,29 +71,48 @@ def commands():
         'exit': good_bye
     }
 
-
+@input_error
 def handle_command(command, dict_user):
     parts = command.split()
     action = parts[0]
 
     if len(parts) > 1 and action in ['add', 'change', 'phone']:
         try:
-            data = parts[1:]
-            if action == 'add':
-                return commands()[action](data, dict_user)
-            elif action == 'change':
-                return commands()[action](data, dict_user)
-            elif action == 'phone':
-                return commands()[action](data, dict_user)
+            if action in ['add', 'change', 'phone']:
+                return commands()[action](parts[1:], dict_user)
+        except ValueError as e:
+            return str(e)
+    else:
+        if action == 'show':
+            if len(parts) == 1:  
+                return "It's not enought information."
+            elif len(parts) > 1 and parts[1] == 'all':
+                return commands()['show'](dict_user)
+            else:
+                return commands()['show'](parts[1:], dict_user)
+        elif action in commands():
+            return commands()[action]()
+        else:
+            return "Sorry, I didn't understand you."
+
+
+    parts = command.split()
+    action = parts[0]
+
+    if len(parts) > 1 and action in ['add', 'change', 'phone']:
+        try:
+            if action in ['add', 'change', 'phone']:
+                return commands()[action](parts[1:], dict_user)
         except ValueError as e:
             return str(e)
     else:
         if action in commands():
-            return commands()[action]()
-        elif action == 'show' and len(parts) == 2 and parts[1] == 'all':
-            return commands()['show'](dict_user)
+            if action == 'show' and len(parts) > 1 and parts[1] == 'all':
+                return commands()[action](dict_user)  
+            else:
+                return commands()[action]()
         else:
-            return "Sorry, I didn't understand your request."
+            return "Sorry.I didn't understand."
 
 
 def main():
