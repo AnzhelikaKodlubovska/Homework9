@@ -42,6 +42,8 @@ def show_phone_number(data, dict_user):
     name = ' '.join(data)
     if name in dict_user:
         return f"Phone number for {name}: {dict_user[name]}"
+    else:
+        return f"It's not enougth information."
 
 @input_error
 def show_all(dict_user):
@@ -76,7 +78,7 @@ def handle_command(command, dict_user):
     parts = command.split()
     action = parts[0]
 
-    if len(parts) > 1 and action in ['add', 'change', 'phone']:
+    if len(parts) > 0 and action in ['add', 'change', 'phone']:
         try:
             if action in ['add', 'change', 'phone']:
                 return commands()[action](parts[1:], dict_user)
@@ -85,11 +87,13 @@ def handle_command(command, dict_user):
     else:
         if action == 'show':
             if len(parts) == 1:  
-                return "It's not enought information."
+                return "It's not enough information."
             elif len(parts) > 1 and parts[1] == 'all':
                 return commands()['show'](dict_user)
             else:
                 return commands()['show'](parts[1:], dict_user)
+        elif action == 'good':
+            return "Sorry, I didn't understand you."
         elif action in commands():
             return commands()[action]()
         else:
